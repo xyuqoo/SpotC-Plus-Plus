@@ -326,16 +326,21 @@ jobs:
       if: ${{ env.VT_ENABLED == 'true' }}
       run: echo "VTSPOSIFYFIX=${{ steps.vt-sposifyfix.outputs.analysis }}" >> $GITHUB_ENV
 
-    - name: Download EeveeSpotify .deb file from releases
-      if: ${{ github.event.inputs.USEACTIONSEEVEE == 'false' }}
+    - name: Download EeveeSpotify .deb file from artifacts
+      if: ${{ github.ex.inputs.USEACTIONSEEVEE == 'true' || true }}
       run: |
-        eevee_asset=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ env.EEVEEREPO }}/releases/tags/${{ env.EEVEETAG }} | jq -r '.assets[] | select(.name | startswith("com.eevee.spotify") and endswith("iphoneos-arm.deb")).browser_download_url')
-        echo "Downloading From: $eevee_asset"
-        # Download the file using curl
-        curl -LJO "$eevee_asset"
+        # Liens directs vers la release swift6.2.2 fournis
+        eevee_url="https://github.com/whoeevee/EeveeSpotifyReborn/releases/download/swift6.2.2/com.eevee.spotify_6.2.2_iphoneos-arm64.deb"
+        
+        # Si tu as besoin de 'arm' au lieu de 'arm64' comme indiqué :
+        eevee_url="${eevee_url//arm64/arm}"
+        
+        echo "Downloading From: $eevee_url"
+        curl -LJO "$eevee_url"
         downloaded_file=$(ls -t | head -n1)
         mv "$downloaded_file" "Build Components/"
-        echo "eevee-arm=Build Components/$downloaded_file" >> $GITHUB_ENV
+        echo "eevee-arm=Build Components/$(basename "$downloaded_file")" >> $GITHUB_ENV
+        echo "eeveeAssetLink=$eevee_url" >> $GITHUB_ENV
       env:
         EEVEETAG: ${{ env.EEVEETAG }}
 
