@@ -751,6 +751,8 @@ jobs:
         draft: true
         body_path: changelog.txt
         files: |
+          ${{ env.patchedspotify }}
+          ${{ env.altpatchedspotify }}
           ${{ env.eevee-arm }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -763,6 +765,9 @@ jobs:
         name: "SpotC++ v${{ env.CHANGEVERSION }}"
         draft: true
         body_path: changelog.txt
+        files: |
+          ${{ env.patchedspotify }}
+          ${{ env.altpatchedspotify }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
