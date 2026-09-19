@@ -347,21 +347,15 @@ jobs:
     - name: Download EeveeSpotify .deb file from artifacts
       if: ${{ github.event.inputs.USEACTIONSEEVEE == 'true' }}
       run: |
-        workflow_run_id=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ env.EEVEEREPO }}/actions/workflows/build-swift.yml/runs?status=success&per_page=1" | jq -r '.workflow_runs[0].id')
-        echo "Workflow ID: $workflow_run_id"
-        eevee_asset=$(curl -sL -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ env.EEVEEREPO }}/actions/runs/$workflow_run_id/artifacts | jq -r '.artifacts[] | select(.name | test("debug|arm64") | not) | .archive_download_url')
-        echo "Downloading From: $eevee_asset"
-        curl -LJ -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "$eevee_asset" -o "eeveespotfiyactionsasset.zip"
-        # Extract the downloaded zip file
-        unzip -q "eeveespotfiyactionsasset.zip" -d extracted_files
-        # Find the file you need within the extracted files
-        downloaded_file=$(find extracted_files -type f -name "*.deb" -print -quit)
-        # Move the found file to the desired directory
+        eevee_url="https://github.com/whoeevee/EeveeSpotifyReborn/releases/download/swift6.2.2/com.eevee.spotify_6.2.2_iphoneos-arm64.deb"
+        eevee_url="${eevee_url//arm64/arm}"
+        
+        echo "Downloading From: $eevee_url"
+        curl -LJO "$eevee_url"
+        downloaded_file=$(ls -t | head -n1)
         mv "$downloaded_file" "Build Components/"
-        # Clean up extracted files
-        rm -rf extracted_files
         echo "eevee-arm=Build Components/$(basename "$downloaded_file")" >> $GITHUB_ENV
-        echo "eeveeAssetLink=$eevee_asset" >> $GITHUB_ENV
+        echo "eeveeAssetLink=$eevee_url" >> $GITHUB_ENV
 
     
     - name: Upload EeveeSpotify to VirusTotal
